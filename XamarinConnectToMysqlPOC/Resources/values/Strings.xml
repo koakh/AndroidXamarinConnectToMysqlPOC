@@ -2,4 +2,5 @@
 <resources>
     <string name="Hello">Hello World, Click Me!</string>
     <string name="ApplicationName">XamarinConnectToMysqlPOC</string>
+    <string name="button_label_1">Test MySQL</string>
 </resources>

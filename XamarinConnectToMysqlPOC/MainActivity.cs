@@ -18,32 +18,51 @@ namespace XamarinConnectToMysqlPOC
     public class MainActivity : Activity
     {
         private readonly string TAG = "XamarinConnectToMysqlPOC";
-        //private readonly string MYSQL_HOST = "192.168.178.57";
-        //private readonly string MYSQL_DB = "logicposdb_20160919_scripts";
-        //private readonly string MYSQL_USER = "root";
-        //private readonly string MYSQL_PASS = "adminx";
-        private readonly string MYSQL_HOST = "koakh.com";
-        private readonly string MYSQL_DB = "mail";
-        private readonly string MYSQL_USER = "softcontrol";
-        private readonly string MYSQL_PASS = "kksc28kk";
-        
-        int count = 1;
+        private readonly string MYSQL_HOST = "192.168.1.121";
+        private readonly string MYSQL_DB = "sakila";
+        private readonly string MYSQL_USER = "?";
+        private readonly string MYSQL_PASS = "?";
+        private TextView _textViewLabel;
+        private int _count = 1;
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
 
             // Set our view from the "main" layout resource
-            SetContentView(Resource.Layout.Main);
+            //SetContentView(Resource.Layout.Main);
 
             // Get our button from the layout resource,
             // and attach an event to it
-            Button button = FindViewById<Button>(Resource.Id.MyButton);
+            //Button button = FindViewById<Button>(Resource.Id.MyButton);
 
-            button.Click += delegate {
-                button.Text = string.Format("{0} clicks!", count++);
-                GetAccountCountFromMySQL();
+            //LinearLayout
+            LinearLayout linearLayout = new LinearLayout(this)
+            {
+                Orientation = Orientation.Vertical
             };
+
+            //TextView
+            _textViewLabel = new TextView(this);
+            _textViewLabel.Text = ApplicationContext.Resources.GetString(Resource.String.ApplicationName);
+
+            //Button1
+            Button button1 = new Button(this)
+            {
+                Text = ApplicationContext.Resources.GetString(Resource.String.button_label_1)
+            };
+            button1.Click += (sender, e) =>
+            {
+                _textViewLabel.Text = string.Format("Counter: {0}", _count++);
+                GetAccountCountFromMySQL();
+                Log.Debug(App.Tag, "button1.Click");
+            };
+
+            //Add View to linearLayout
+            linearLayout.AddView(button1);
+            linearLayout.AddView(_textViewLabel);
+            //Add Content View
+            SetContentView(linearLayout);
         }
 
         public void GetAccountCountFromMySQL()
@@ -57,7 +76,7 @@ namespace XamarinConnectToMysqlPOC
                 sqlconn = new MySqlConnection(connsqlstring);
                 sqlconn.Open();
 
-                string queryString = "select * from users;";
+                string queryString = "select * from actor;";
                 MySqlCommand sqlcmd = new MySqlCommand(queryString, sqlconn);
                 String result = sqlcmd.ExecuteScalar().ToString();
                 Log.Info(TAG, result);
@@ -65,14 +84,15 @@ namespace XamarinConnectToMysqlPOC
 
                 List<String> products = new List<String>();
                 DataSet tickets = new DataSet();
-                queryString = "select id, name from users;";
+                queryString = "SELECT actor_id, first_name, last_name, last_update FROM actor;";
                 MySqlDataAdapter adapter = new MySqlDataAdapter(queryString, sqlconn);
-                adapter.Fill(tickets, "id");
-                foreach (DataRow row in tickets.Tables["id"].Rows)
+                adapter.Fill(tickets, "table");
+                foreach (DataRow row in tickets.Tables["table"].Rows)
                 {
                     products.Add(row[0].ToString());
                     Log.Info(TAG, row[0].ToString());
                     Console.WriteLine(row[0].ToString());
+                    _textViewLabel.Text += string.Format("{0}{1}:{2}:{3}", @"\r\n", row.ItemArray[0], row.ItemArray[1], row.ItemArray[2]);
                 }
 
                 sqlconn.Close();
@@ -113,4 +133,3 @@ namespace XamarinConnectToMysqlPOC
         */
     }
 }
-
